@@ -1,0 +1,9 @@
+[package]
+name = "advent"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.66"
+clap = { version = "4.0.29", features = ["derive"] }
+tokio = { version = "1.22.0", features = ["io-util", "fs"] }
