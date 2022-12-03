@@ -8,11 +8,11 @@ use clap::Parser;
 pub struct Config {
     /// Specifies where the data powering this advent day should come from.
     #[arg(default_value_t = DataSource::Sample, long, short, value_enum)]
-    pub(crate) data_source: DataSource,
+    pub data_source: DataSource,
 
     /// Specifies which part is active for this advent day.
     #[arg(default_value_t = Part::One, long, short, value_enum)]
-    pub(crate) part: Part,
+    pub part: Part,
 }
 
 impl Config {

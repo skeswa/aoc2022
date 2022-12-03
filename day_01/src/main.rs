@@ -23,26 +23,67 @@ async fn main() -> Result<()> {
         .map(|s| s.to_owned())
         .collect::<Vec<Vec<&str>>>();
 
-    let elven_inventory_calorie_counts =
-        elven_inventory_line_clusters
-            .iter()
-            .map(|elven_inventory_line_cluster| {
-                elven_inventory_line_cluster
-                    .iter()
-                    .map(|elven_inventory_line| {
-                        elven_inventory_line.parse::<i32>().with_context(|| {
-                            format!("Failed to parse inventory line: {}", elven_inventory_line)
-                        })
+    let elven_inventory_calorie_counts = elven_inventory_line_clusters
+        .iter()
+        .map(|elven_inventory_line_cluster| {
+            elven_inventory_line_cluster
+                .iter()
+                .map(|elven_inventory_line| {
+                    elven_inventory_line.parse::<i32>().with_context(|| {
+                        format!("Failed to parse inventory line: {}", elven_inventory_line)
                     })
-                    .collect::<Result<Vec<i32>>>()
-            })
-            .collect::<Result<Vec<Vec<i32>>>>()?;
+                })
+                .collect::<Result<Vec<i32>>>()
+        })
+        .collect::<Result<Vec<Vec<i32>>>>()?;
 
-    let elven_inventory_calorie_totals = elven_inventory_calorie_counts.iter().map(|elven_inventory_calorie_counts| elven_inventory_calorie_counts.iter().fold(0, |total_calories, calorie_count| total_calories + calorie_count)).collect::<Vec<i32>>();
+    let mut elven_inventory_calorie_totals = elven_inventory_calorie_counts
+        .iter()
+        .map(|elven_inventory_calorie_counts| {
+            elven_inventory_calorie_counts
+                .iter()
+                .fold(0, |total_calories, calorie_count| {
+                    total_calories + calorie_count
+                })
+        })
+        .collect::<Vec<i32>>();
 
-    let max_elven_inventory_calorie_total = elven_inventory_calorie_totals.iter().max().unwrap_or(&0);
+    elven_inventory_calorie_totals.sort();
+    elven_inventory_calorie_totals.reverse();
 
-    println!("Maximum elven calorie total: {}", max_elven_inventory_calorie_total);
+    match config.part {
+        advent::Part::One => {
+            let max_elven_inventory_calorie_total = elven_inventory_calorie_totals.first().unwrap();
+
+            println!(
+                "Maximum elven calorie total: {}",
+                max_elven_inventory_calorie_total
+            );
+        }
+        advent::Part::Two => {
+            let top_three_elven_inventory_calorie_totals = elven_inventory_calorie_totals
+                .iter()
+                .take(3)
+                .collect::<Vec<&i32>>();
+
+            println!(
+                "Top 3 elven calorie totals: {:?}",
+                top_three_elven_inventory_calorie_totals
+            );
+
+            let top_three_elven_inventory_calorie_total_sum =
+                top_three_elven_inventory_calorie_totals
+                    .iter()
+                    .fold(0, |total_calories, calorie_count| {
+                        total_calories + *calorie_count
+                    });
+
+            println!(
+                "Sum of top 3 elven calorie totals: {}",
+                top_three_elven_inventory_calorie_total_sum
+            );
+        },
+    }
 
     Ok(())
 }
