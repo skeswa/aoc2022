@@ -1,8 +1,11 @@
+use std::cmp::Ordering;
+
+use crate::scorable::Scorable;
 use anyhow::{anyhow, Result};
 
 /// Enumerates every usable hand shape in a rip roarin' game of rock paper
 /// scissors.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, PartialOrd)]
 pub(crate) enum HandShape {
     /// Hand shape signified by an open palm. Paper beats rock.
     Paper,
@@ -43,6 +46,38 @@ impl HandShape {
                 "\"{}\" is not a valid hand shape (for your opponent, anyway)",
                 sanitized_encoded_round,
             )),
+        }
+    }
+}
+
+impl Scorable for HandShape {
+    fn score(&self) -> u32 {
+        match self {
+            Self::Paper => 2,
+            Self::Rock => 1,
+            Self::Scissors => 3,
+        }
+    }
+}
+
+impl Ord for HandShape {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self {
+            Self::Paper => match other {
+                Self::Paper => Ordering::Equal,
+                Self::Rock => Ordering::Greater,
+                Self::Scissors => Ordering::Less,
+            },
+            Self::Rock => match other {
+                Self::Paper => Ordering::Less,
+                Self::Rock => Ordering::Equal,
+                Self::Scissors => Ordering::Greater,
+            },
+            Self::Scissors => match other {
+                Self::Paper => Ordering::Greater,
+                Self::Rock => Ordering::Less,
+                Self::Scissors => Ordering::Equal,
+            },
         }
     }
 }

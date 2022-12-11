@@ -6,16 +6,22 @@ extern crate tokio;
 
 mod hand_shape;
 mod round;
+mod scorable;
+mod strategy_guide;
 
 use anyhow::Result;
+use scorable::Scorable;
+use strategy_guide::StrategyGuide;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = advent::begin();
 
-    let strategy_guide = advent::data(&config).await?;
+    let encoded_strategy_guide = advent::data(&config).await?;
 
-    println!("Hello, world! {}", strategy_guide);
+    let strategy_guide = StrategyGuide::parse(&encoded_strategy_guide)?;
+
+    println!("Total score of strategy guide: {}", strategy_guide.score());
 
     Ok(())
 }

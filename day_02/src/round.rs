@@ -1,4 +1,6 @@
-use crate::hand_shape::HandShape;
+use std::cmp::Ordering;
+
+use crate::{hand_shape::HandShape, scorable::Scorable};
 use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -27,8 +29,8 @@ impl Round {
             .captures(encoded_round)
             .with_context(|| format!("\"{}\" is not a valid encoded round", encoded_round))?;
 
-        let my_encoded_hand_shape = parsed_encoded_round.get(0).unwrap().as_str();
-        let opponent_encoded_hand_shape = parsed_encoded_round.get(1).unwrap().as_str();
+        let my_encoded_hand_shape = parsed_encoded_round.get(1).unwrap().as_str();
+        let opponent_encoded_hand_shape = parsed_encoded_round.get(2).unwrap().as_str();
 
         let my_hand_shape = HandShape::parse_for_me(my_encoded_hand_shape)?;
         let opponent_hand_shape = HandShape::parse_for_opponent(opponent_encoded_hand_shape)?;
@@ -37,6 +39,43 @@ impl Round {
             my_hand_shape: my_hand_shape,
             opponent_hand_shape: opponent_hand_shape,
         })
+    }
+
+    /// Derives the outcome of this [Round].
+    pub(crate) fn outcome(&self) -> RoundOutcome {
+        match self.my_hand_shape.cmp(&self.opponent_hand_shape) {
+            Ordering::Equal => RoundOutcome::Draw,
+            Ordering::Greater => RoundOutcome::Win,
+            Ordering::Less => RoundOutcome::Loss,
+        }
+    }
+}
+
+impl Scorable for Round {
+    fn score(&self) -> u32 {
+        self.outcome().score() + self.my_hand_shape.score()
+    }
+}
+
+/// Enumerates every outcome for the main player of a particular [Round].
+pub(crate) enum RoundOutcome {
+    /// Outcome that results from both players playing the same hand shape.
+    Draw,
+    /// Outcome that results from the opposing player playing a hand shape
+    /// that beats the main player's hand shape.
+    Loss,
+    /// Outcome that results from the main player playing a hand shape
+    /// that beats the opposing player's hand shape.
+    Win,
+}
+
+impl Scorable for RoundOutcome {
+    fn score(&self) -> u32 {
+        match self {
+            Self::Draw => 3,
+            Self::Loss => 0,
+            Self::Win => 6,
+        }
     }
 }
 
@@ -56,8 +95,8 @@ mod tests {
         assert_eq!(
             Round::parse("B\nY").unwrap(),
             Round {
-                my_hand_shape: HandShape::Paper,
-                opponent_hand_shape: HandShape::Paper,
+                my_hand_shape: HandShape::Rock,
+                opponent_hand_shape: HandShape::Rock,
             },
         );
     }
