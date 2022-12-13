@@ -48,6 +48,24 @@ impl HandShape {
             )),
         }
     }
+
+    /// Returns the [HandShape] that this [HandShape] beats.
+    pub(crate) fn loser(&self) -> HandShape {
+        match self {
+            HandShape::Paper => HandShape::Paper,
+            HandShape::Rock => HandShape::Scissors,
+            HandShape::Scissors => HandShape::Paper,
+        }
+    }
+
+    /// Returns the [HandShape] that beats this [HandShape].
+    pub(crate) fn winner(&self) -> HandShape {
+        match self {
+            HandShape::Paper => HandShape::Scissors,
+            HandShape::Rock => HandShape::Paper,
+            HandShape::Scissors => HandShape::Rock,
+        }
+    }
 }
 
 impl Scorable for HandShape {
