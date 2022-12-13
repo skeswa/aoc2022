@@ -1,11 +1,12 @@
 use std::cmp::Ordering;
 
+use crate::round_outcome::RoundOutcome;
 use crate::scorable::Scorable;
 use anyhow::{anyhow, Result};
 
 /// Enumerates every usable hand shape in a rip roarin' game of rock paper
 /// scissors.
-#[derive(Debug, Eq, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd)]
 pub(crate) enum HandShape {
     /// Hand shape signified by an open palm. Paper beats rock.
     Paper,
@@ -49,21 +50,21 @@ impl HandShape {
         }
     }
 
-    /// Returns the [HandShape] that this [HandShape] beats.
-    pub(crate) fn loser(&self) -> HandShape {
-        match self {
-            HandShape::Paper => HandShape::Paper,
-            HandShape::Rock => HandShape::Scissors,
-            HandShape::Scissors => HandShape::Paper,
-        }
-    }
-
-    /// Returns the [HandShape] that beats this [HandShape].
-    pub(crate) fn winner(&self) -> HandShape {
-        match self {
-            HandShape::Paper => HandShape::Scissors,
-            HandShape::Rock => HandShape::Paper,
-            HandShape::Scissors => HandShape::Rock,
+    /// Returns the [HandShape] that would result in `round_outcome` if played
+    /// against this [HandShape] beats.
+    pub(crate) fn to_achieve(round_outcome: &RoundOutcome, against: &HandShape) -> HandShape {
+        match round_outcome {
+            RoundOutcome::Draw => *against,
+            RoundOutcome::Loss => match against {
+                Self::Paper => Self::Rock,
+                Self::Rock => Self::Scissors,
+                Self::Scissors => Self::Paper,
+            },
+            RoundOutcome::Win => match against {
+                Self::Paper => Self::Scissors,
+                Self::Rock => Self::Paper,
+                Self::Scissors => Self::Rock,
+            },
         }
     }
 }

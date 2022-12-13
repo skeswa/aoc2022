@@ -1,4 +1,6 @@
-use crate::{round::Round, scorable::Scorable};
+use crate::{
+    round::Round, scorable::Scorable, strategy_guide_interpretation::StrategyGuideInterpretation,
+};
 use anyhow::{Context, Result};
 
 /// Series of rock-paper-scissors rounds that dictate how each player should
@@ -9,10 +11,18 @@ pub(crate) struct StrategyGuide(Vec<Round>);
 impl StrategyGuide {
     /// Returns a [StrategyGuide] corresponding to the specified
     /// `encoded_strategy_guide` string.
-    pub(crate) fn parse(encoded_strategy_guide: &str) -> Result<StrategyGuide> {
+    ///
+    /// * `interpretation` configures how this method should interpret
+    ///   `encoded_strategy_guide`
+    pub(crate) fn parse(
+        encoded_strategy_guide: &str,
+        interpretation: StrategyGuideInterpretation,
+    ) -> Result<StrategyGuide> {
         let rounds = encoded_strategy_guide
             .lines()
-            .map(|encoded_strategy_guide_line| Round::parse(encoded_strategy_guide_line))
+            .map(|encoded_strategy_guide_line| {
+                Round::parse(encoded_strategy_guide_line, interpretation)
+            })
             .collect::<Result<Vec<Round>>>()
             .context("Failed to parse encoded strategy guide")?;
 
