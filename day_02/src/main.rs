@@ -6,6 +6,7 @@ extern crate tokio;
 
 mod hand_shape;
 mod round;
+mod round_outcome;
 mod scorable;
 mod strategy_guide;
 
