@@ -1,7 +1,8 @@
-/// Name of a data file.
-pub trait DataFileName {
-    /// Represents this object as a data file name [String].
-    fn to_data_file_name(self) -> String;
+/// Exposes functionality to generate data file names.
+pub trait DataFileNames {
+    /// Returns all possible names of a data file given the contents of this
+    /// [DataFileName].
+    fn to_data_file_names(self) -> Vec<String>;
 }
 
 /// Represents a part of a data file name.
@@ -11,16 +12,19 @@ pub trait DataFileNameFragment: Copy {
     fn to_data_file_name_fragment(self) -> &'static str;
 }
 
-impl<T, U> DataFileName for (&T, &U)
+impl<T, U> DataFileNames for (&T, &U)
 where
     T: DataFileNameFragment,
     U: DataFileNameFragment,
 {
-    fn to_data_file_name(self) -> String {
-        format!(
-            "{}_{}.txt",
-            self.0.to_data_file_name_fragment(),
-            self.1.to_data_file_name_fragment()
-        )
+    fn to_data_file_names(self) -> Vec<String> {
+        vec![
+            format!(
+                "{}_{}.txt",
+                self.0.to_data_file_name_fragment(),
+                self.1.to_data_file_name_fragment()
+            ),
+            format!("{}.txt", self.0.to_data_file_name_fragment(),),
+        ]
     }
 }
