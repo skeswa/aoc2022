@@ -23,9 +23,9 @@ impl HandShape {
         let sanitized_encoded_round = encoded_round.trim();
 
         match sanitized_encoded_round {
-            "A" => Ok(HandShape::Paper),
-            "B" => Ok(HandShape::Rock),
-            "C" => Ok(HandShape::Scissors),
+            "X" => Ok(HandShape::Rock),
+            "Y" => Ok(HandShape::Paper),
+            "Z" => Ok(HandShape::Scissors),
             _ => Err(anyhow!(
                 "\"{}\" is not a valid hand shape (for you, anyway)",
                 sanitized_encoded_round,
@@ -39,9 +39,9 @@ impl HandShape {
         let sanitized_encoded_round = encoded_round.trim();
 
         match sanitized_encoded_round {
-            "X" => Ok(HandShape::Paper),
-            "Y" => Ok(HandShape::Rock),
-            "Z" => Ok(HandShape::Scissors),
+            "A" => Ok(HandShape::Rock),
+            "B" => Ok(HandShape::Paper),
+            "C" => Ok(HandShape::Scissors),
             _ => Err(anyhow!(
                 "\"{}\" is not a valid hand shape (for your opponent, anyway)",
                 sanitized_encoded_round,

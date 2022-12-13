@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt::Debug;
 
 use crate::{hand_shape::HandShape, scorable::Scorable};
 use anyhow::{Context, Result};
@@ -6,7 +7,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 /// Represents one round of a rip roarin' game of rock paper scissors.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq)]
 pub(crate) struct Round {
     /// Hand shape submitted by this player of rock paper scissors.
     pub(crate) my_hand_shape: HandShape,
@@ -29,8 +30,8 @@ impl Round {
             .captures(encoded_round)
             .with_context(|| format!("\"{}\" is not a valid encoded round", encoded_round))?;
 
-        let my_encoded_hand_shape = parsed_encoded_round.get(1).unwrap().as_str();
-        let opponent_encoded_hand_shape = parsed_encoded_round.get(2).unwrap().as_str();
+        let my_encoded_hand_shape = parsed_encoded_round.get(2).unwrap().as_str();
+        let opponent_encoded_hand_shape = parsed_encoded_round.get(1).unwrap().as_str();
 
         let my_hand_shape = HandShape::parse_for_me(my_encoded_hand_shape)?;
         let opponent_hand_shape = HandShape::parse_for_opponent(opponent_encoded_hand_shape)?;
@@ -51,13 +52,25 @@ impl Round {
     }
 }
 
+impl Debug for Round {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Round")
+            .field("my_hand_shape", &self.my_hand_shape)
+            .field("opponent_hand_shape", &self.opponent_hand_shape)
+            .field("outcome", &self.outcome())
+            .field("score", &self.score())
+            .finish()
+    }
+}
+
 impl Scorable for Round {
     fn score(&self) -> u32 {
-        self.outcome().score() + self.my_hand_shape.score()
+        self.my_hand_shape.score() + self.outcome().score()
     }
 }
 
 /// Enumerates every outcome for the main player of a particular [Round].
+#[derive(Debug)]
 pub(crate) enum RoundOutcome {
     /// Outcome that results from both players playing the same hand shape.
     Draw,
@@ -96,6 +109,13 @@ mod tests {
             Round::parse("B\nY").unwrap(),
             Round {
                 my_hand_shape: HandShape::Rock,
+                opponent_hand_shape: HandShape::Rock,
+            },
+        );
+        assert_eq!(
+            Round::parse("A\nZ").unwrap(),
+            Round {
+                my_hand_shape: HandShape::Scissors,
                 opponent_hand_shape: HandShape::Rock,
             },
         );
