@@ -5,11 +5,10 @@ use anyhow::{anyhow, Result};
 /// Represents one rucksack containing supplies for the jungle journey.
 #[derive(Debug)]
 pub(crate) struct Rucksack {
-    /// Set of all the characters shared by any compartments.
+    /// Set of all the item types shared by any compartments.
     pub(crate) collisions: HashSet<char>,
-    /// [Vec] wrapping each of the two compartments in the rucksack.
-    #[allow(dead_code)]
-    compartments: Vec<HashSet<char>>,
+    /// Set of all the item types to appear in this [Rucksack].
+    pub(crate) item_types: HashSet<char>,
 }
 
 impl Rucksack {
@@ -48,7 +47,10 @@ impl Rucksack {
 
         Ok(Rucksack {
             collisions: collisions,
-            compartments: vec![first_compartment, second_compartment],
+            item_types: item_types
+                .iter()
+                .map(|item_type| item_type.to_owned())
+                .collect::<HashSet<char>>(),
         })
     }
 }
