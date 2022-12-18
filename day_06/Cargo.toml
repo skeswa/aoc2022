@@ -1,0 +1,11 @@
+[package]
+name = "day_06"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+advent = { path = "../advent" }
+anyhow = "1.0.66"
+lazy_static = "1.4.0"
+regex = "1.7.0"
+tokio = { version = "1.22.0", features = ["full"] }
