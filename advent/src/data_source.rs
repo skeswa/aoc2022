@@ -11,10 +11,10 @@ pub enum DataSource {
 }
 
 impl DataFileNameFragment for DataSource {
-    fn to_data_file_name_fragment(self) -> &'static str {
+    fn to_data_file_name_fragment(self) -> String {
         match self {
-            DataSource::Input => "input",
-            DataSource::Sample => "sample",
+            DataSource::Input => "input".to_owned(),
+            DataSource::Sample => "sample".to_owned(),
         }
     }
 }

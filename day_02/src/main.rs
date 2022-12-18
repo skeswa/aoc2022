@@ -22,8 +22,9 @@ async fn main() -> Result<()> {
 
     let encoded_strategy_guide = advent::data(&config).await?;
     let strategy_guide_interpretation = match config.part {
-        advent::Part::One => StrategyGuideInterpretation::HandShape,
-        advent::Part::Two => StrategyGuideInterpretation::RoundOutcome,
+        1 => StrategyGuideInterpretation::HandShape,
+        2 => StrategyGuideInterpretation::RoundOutcome,
+        _ => todo!(),
     };
 
     let strategy_guide =

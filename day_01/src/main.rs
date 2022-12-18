@@ -52,7 +52,7 @@ async fn main() -> Result<()> {
     elven_inventory_calorie_totals.reverse();
 
     match config.part {
-        advent::Part::One => {
+        1 => {
             let max_elven_inventory_calorie_total = elven_inventory_calorie_totals.first().unwrap();
 
             println!(
@@ -60,7 +60,7 @@ async fn main() -> Result<()> {
                 max_elven_inventory_calorie_total
             );
         }
-        advent::Part::Two => {
+        2 => {
             let top_three_elven_inventory_calorie_totals = elven_inventory_calorie_totals
                 .iter()
                 .take(3)
@@ -82,7 +82,8 @@ async fn main() -> Result<()> {
                 "Sum of top 3 elven calorie totals: {}",
                 top_three_elven_inventory_calorie_total_sum
             );
-        },
+        }
+        _ => todo!(),
     }
 
     Ok(())

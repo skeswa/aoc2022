@@ -26,12 +26,12 @@ async fn main() -> Result<()> {
         .context("Failed to read supplies list")?;
 
     let all_collisions = match config.part {
-        advent::Part::One => rucksacks
+        1 => rucksacks
             .iter()
             .flat_map(|rucksack| rucksack.collisions.iter())
             .map(|collision_char| collision_char.to_owned())
             .collect::<Vec<char>>(),
-        advent::Part::Two => {
+        2 => {
             let rucksack_groups = rucksacks
                 .chunks(3)
                 .map(|rucksacks| RucksackGroup::new(rucksacks.iter()))
@@ -43,6 +43,7 @@ async fn main() -> Result<()> {
                 .map(|collision_char| collision_char.to_owned())
                 .collect::<Vec<char>>()
         }
+        _ => todo!(),
     };
 
     let priority_total = all_collisions

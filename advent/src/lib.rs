@@ -5,12 +5,10 @@ extern crate tokio;
 mod config;
 mod data_file_name;
 mod data_source;
-mod part;
 
 pub use config::Config;
 pub use data_file_name::*;
 pub use data_source::DataSource;
-pub use part::Part;
 
 use anyhow::{anyhow, Context, Ok, Result};
 use std::env::current_dir;
@@ -73,4 +71,10 @@ async fn try_read_data_files(data_file_paths: Vec<PathBuf>) -> Result<Vec<u8>> {
         "Failed to open any of the files at paths \"{:?}\"",
         data_file_paths
     ))
+}
+
+impl DataFileNameFragment for u8 {
+    fn to_data_file_name_fragment(self) -> String {
+        self.to_string()
+    }
 }

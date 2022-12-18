@@ -1,5 +1,4 @@
 use crate::data_source::DataSource;
-use crate::part::Part;
 use clap::Parser;
 
 /// Standard configuration for an advent day program.
@@ -11,8 +10,8 @@ pub struct Config {
     pub data_source: DataSource,
 
     /// Specifies which part is active for this advent day.
-    #[arg(default_value_t = Part::One, long, short, value_enum)]
-    pub part: Part,
+    #[arg(default_value_t = 1, long, short)]
+    pub part: u8,
 }
 
 impl Config {

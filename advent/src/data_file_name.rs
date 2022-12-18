@@ -9,7 +9,7 @@ pub trait DataFileNames {
 pub trait DataFileNameFragment: Copy {
     /// Returns the string fragment that this [DataFileNameFragment] contributes
     /// to a data file name.
-    fn to_data_file_name_fragment(self) -> &'static str;
+    fn to_data_file_name_fragment(self) -> String;
 }
 
 impl<T, U> DataFileNames for (&T, &U)
