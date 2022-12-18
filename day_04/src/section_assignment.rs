@@ -45,4 +45,11 @@ impl SectionAssignment {
     pub(crate) fn fully_contains(&self, other: &Self) -> bool {
         self.from <= other.from && self.to >= other.to
     }
+
+    /// Returns `true` if this [SectionAssignment] at all overlaps the `other`
+    /// one.
+    pub(crate) fn overlaps(&self, other: &Self) -> bool {
+        (self.from <= other.from && self.to >= other.from)
+            || (other.from <= self.from && other.to >= self.from)
+    }
 }

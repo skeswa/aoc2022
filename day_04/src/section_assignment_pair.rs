@@ -31,7 +31,12 @@ impl SectionAssignmentPair {
         ))
     }
 
-    /// Returns `true` if one of this pair's assignments if fully contained by
+    /// Returns `true` if this pair's assignments overlap at all.
+    pub(crate) fn has_overlap(&self) -> bool {
+        self.0.overlaps(&self.1)
+    }
+
+    /// Returns `true` if one of this pair's assignments is fully contained by
     /// the other.
     pub(crate) fn has_rendundancy(&self) -> bool {
         self.0.fully_contains(&self.1) || self.1.fully_contains(&self.0)
