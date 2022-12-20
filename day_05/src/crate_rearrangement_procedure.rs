@@ -2,7 +2,9 @@ use anyhow::{anyhow, Context, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::{crate_move::CrateMove, crate_stacks::CrateStacks};
+use crate::{
+    crate_move::CrateMove, crate_piling_order::CratePilingOrder, crate_stacks::CrateStacks,
+};
 
 /// Represents the relocation of some number of crates between crate stacks.
 #[derive(Debug, Eq, PartialEq)]
@@ -53,7 +55,10 @@ impl CrateRearrangementProcedure {
 
     /// Returns the result of applying this rearrangement procedure's crate
     /// moves to a clone of its crate stacks.
-    pub(crate) fn execute(&self) -> CrateStacks {
-        self.crate_stacks.apply(&self.crate_moves)
+    ///
+    ///  * `create_piling_order` describes the piling order that should be used
+    pub(crate) fn execute(&self, create_piling_order: CratePilingOrder) -> CrateStacks {
+        self.crate_stacks
+            .apply(&self.crate_moves, create_piling_order)
     }
 }

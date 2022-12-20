@@ -2,7 +2,7 @@ use anyhow::{Context, Ok, Result};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::crate_move::CrateMove;
+use crate::{crate_move::CrateMove, crate_piling_order::CratePilingOrder};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct CrateStacks(Vec<CrateStack>);
@@ -63,14 +63,21 @@ impl CrateStacks {
     }
 
     /// Applies the specified `crate_moves` to a clone of this [CrateStacks].
-    pub(crate) fn apply(&self, crate_moves: &Vec<CrateMove>) -> CrateStacks {
+    ///
+    ///  * `create_piling_order` describes the piling order that should be used
+    pub(crate) fn apply(
+        &self,
+        crate_moves: &Vec<CrateMove>,
+        create_piling_order: CratePilingOrder,
+    ) -> CrateStacks {
         let mut crate_stacks = self.0.clone();
 
         for crate_move in crate_moves {
             let moved_crates =
                 crate_stacks[crate_move.origin_crate_index].pop(crate_move.number_of_crates);
 
-            crate_stacks[crate_move.destination_crate_index].pile_on(moved_crates);
+            crate_stacks[crate_move.destination_crate_index]
+                .pile_on(moved_crates, &create_piling_order);
         }
 
         CrateStacks(crate_stacks)
@@ -87,9 +94,20 @@ pub(crate) struct CrateStack(Vec<Crate>);
 
 impl CrateStack {
     /// Returns the [Crate] at the top of this stack.
-    pub(crate) fn pile_on(&mut self, crates: Vec<Crate>) {
-        for piled_on_crate in crates.iter().rev() {
-            self.0.push(*piled_on_crate);
+    ///
+    ///  * `create_piling_order` describes the piling order that should be used
+    pub(crate) fn pile_on(&mut self, crates: Vec<Crate>, create_piling_order: &CratePilingOrder) {
+        match create_piling_order {
+            CratePilingOrder::Flipped => {
+                for piled_on_crate in crates.iter().rev() {
+                    self.0.push(*piled_on_crate);
+                }
+            }
+            CratePilingOrder::InOrder => {
+                for piled_on_crate in crates.iter() {
+                    self.0.push(*piled_on_crate);
+                }
+            }
         }
     }
 
