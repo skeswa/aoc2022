@@ -1,5 +1,6 @@
 extern crate anyhow;
 extern crate clap;
+extern crate env_logger;
 extern crate tokio;
 
 mod config;
@@ -18,6 +19,8 @@ use tokio::io::AsyncReadExt;
 
 /// Starts this advent day, returning the specified [Config].
 pub fn begin() -> Config {
+    env_logger::init();
+
     Config::read_from_args()
 }
 
