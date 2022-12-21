@@ -22,17 +22,19 @@ impl DataStream {
 
             count_by_char.insert(curr, count_by_char.get(&curr).unwrap_or(&0) + 1);
 
-            if count_by_char.len() == 4 {
-                return Some(i + 1);
-            }
-
-            if i >= 3 {
-                let prev = self.0[i - 3];
+            if i >= 4 {
+                let prev = self.0[i - 4];
 
                 let count = count_by_char.get(&prev).unwrap_or(&1) - 1;
-                if count <= 0 {
+                if count > 0 {
+                    count_by_char.insert(prev, count);
+                } else {
                     count_by_char.remove(&prev);
                 }
+            }
+
+            if count_by_char.len() == 4 {
+                return Some(i + 1);
             }
         }
 
@@ -55,8 +57,11 @@ mod tests {
     #[test]
     fn start_packet_index_finds_the_right_start_marker() {
         assert_eq!(
-            DataStream(vec!['b', 'v', 'w', 'b', 'j', 'p', 'l']).start_packet_index(),
-            Some(5)
+            DataStream(vec![
+                'b', 'b', 'b', 'b', 'b', 'b', 'b', 'v', 'w', 'b', 'j', 'p', 'l'
+            ])
+            .start_packet_index(),
+            Some(11)
         );
 
         assert_eq!(
@@ -65,7 +70,7 @@ mod tests {
         );
 
         assert_eq!(
-            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'c', 'c']).start_packet_index(),
+            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'c', 'c', 'd']).start_packet_index(),
             None
         );
     }
