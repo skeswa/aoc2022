@@ -12,9 +12,21 @@ impl DataStream {
         DataStream(encoded_data_stream.chars().collect::<Vec<char>>())
     }
 
-    /// Calculates the index of the start packet (4 consecutive non-repeating
+    /// Calculates the index of the start of message (14 consecutive
+    /// non-repeating characters), returning [None] if no such index exists.
+    pub(crate) fn start_of_message_index(&self) -> Option<usize> {
+        self.index_after_unique_span(14)
+    }
+
+    /// Calculates the index of the start of packet (4 consecutive non-repeating
     /// characters), returning [None] if no such index exists.
-    pub(crate) fn start_packet_index(&self) -> Option<usize> {
+    pub(crate) fn start_of_packet_index(&self) -> Option<usize> {
+        self.index_after_unique_span(4)
+    }
+
+    /// Returns the first index following a `span_length` long sequence of
+    /// non-repeating characters, or [None] if no such index exists.
+    fn index_after_unique_span(&self, span_length: usize) -> Option<usize> {
         let mut count_by_char: HashMap<char, usize> = HashMap::new();
 
         for i in 0..self.0.len() {
@@ -22,8 +34,8 @@ impl DataStream {
 
             count_by_char.insert(curr, count_by_char.get(&curr).unwrap_or(&0) + 1);
 
-            if i >= 4 {
-                let prev = self.0[i - 4];
+            if i >= span_length {
+                let prev = self.0[i - span_length];
 
                 let count = count_by_char.get(&prev).unwrap_or(&1) - 1;
                 if count > 0 {
@@ -33,7 +45,7 @@ impl DataStream {
                 }
             }
 
-            if count_by_char.len() == 4 {
+            if count_by_char.len() == span_length {
                 return Some(i + 1);
             }
         }
@@ -60,17 +72,17 @@ mod tests {
             DataStream(vec![
                 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'v', 'w', 'b', 'j', 'p', 'l'
             ])
-            .start_packet_index(),
+            .start_of_packet_index(),
             Some(11)
         );
 
         assert_eq!(
-            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'd', 'e']).start_packet_index(),
+            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'd', 'e']).start_of_packet_index(),
             Some(6)
         );
 
         assert_eq!(
-            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'c', 'c', 'd']).start_packet_index(),
+            DataStream(vec!['a', 'a', 'a', 'b', 'c', 'c', 'c', 'd']).start_of_packet_index(),
             None
         );
     }
