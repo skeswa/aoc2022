@@ -87,6 +87,71 @@ impl TreeGrid {
         })
     }
 
+    /// Calculates and returns the scenic scores for each tree co-ordinate in
+    /// `(score, x, y)` format.
+    pub(crate) fn scenic_scores(&self) -> Vec<ScenicScoreEvaluation> {
+        let mut scenic_scores: Vec<ScenicScoreEvaluation> =
+            Vec::with_capacity(self.column_count * self.row_count);
+
+        for column_index in 0..self.column_count {
+            for row_index in 0..self.row_count {
+                let tree_height = self.tree_height_rows[row_index][column_index];
+
+                let mut down_tree_count: usize = 0;
+                for other_row_index in row_index + 1..self.row_count {
+                    down_tree_count = down_tree_count + 1;
+
+                    if tree_height <= self.tree_height_rows[other_row_index][column_index] {
+                        break;
+                    }
+                }
+
+                let mut left_tree_count: usize = 0;
+                for other_column_index in (0..column_index).rev() {
+                    left_tree_count = left_tree_count + 1;
+
+                    if tree_height <= self.tree_height_rows[row_index][other_column_index] {
+                        break;
+                    }
+                }
+
+                let mut right_tree_count: usize = 0;
+                for other_column_index in column_index + 1..self.column_count {
+                    right_tree_count = right_tree_count + 1;
+
+                    if tree_height <= self.tree_height_rows[row_index][other_column_index] {
+                        break;
+                    }
+                }
+
+                let mut up_tree_count: usize = 0;
+                for other_row_index in (0..row_index).rev() {
+                    up_tree_count = up_tree_count + 1;
+
+                    if tree_height <= self.tree_height_rows[other_row_index][column_index] {
+                        break;
+                    }
+                }
+
+                let scenic_score =
+                    down_tree_count * left_tree_count * right_tree_count * up_tree_count;
+
+                scenic_scores.push(ScenicScoreEvaluation {
+                    coordinate: (column_index, row_index),
+                    scenic_score: scenic_score,
+                    viewing_distances: (
+                        up_tree_count,
+                        right_tree_count,
+                        down_tree_count,
+                        left_tree_count,
+                    ),
+                });
+            }
+        }
+
+        scenic_scores
+    }
+
     /// Returns the `(x, y)` co-ordinates of trees that are visible from the outside.
     pub(crate) fn visible_trees(&self) -> HashSet<(usize, usize)> {
         let mut visible_trees: HashSet<(usize, usize)> =
@@ -158,4 +223,16 @@ impl TreeGrid {
 
         visible_trees
     }
+}
+
+/// One call-and-response within a terminal shell session.
+#[allow(dead_code)]
+#[derive(Debug)]
+pub(crate) struct ScenicScoreEvaluation {
+    /// Position from which scenic score was evaluated.
+    pub(crate) coordinate: (usize, usize),
+    /// Calculated scneic score.
+    pub(crate) scenic_score: usize,
+    /// Number of visible trees in each direction (up, right, bottom, left).
+    pub(crate) viewing_distances: (usize, usize, usize, usize),
 }

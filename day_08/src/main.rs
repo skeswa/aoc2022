@@ -17,14 +17,28 @@ async fn main() -> Result<()> {
 
     let tree_grid = TreeGrid::parse(&encoded_tree_grid).context("Failed to parse tree grid")?;
 
-    let mut visible_trees = tree_grid
-        .visible_trees()
-        .into_iter()
-        .collect::<Vec<(usize, usize)>>();
+    match config.part {
+        1 => {
+            let mut visible_trees = tree_grid
+                .visible_trees()
+                .into_iter()
+                .collect::<Vec<(usize, usize)>>();
 
-    visible_trees.sort();
+            visible_trees.sort();
 
-    println!("# of visible trees: {}", visible_trees.len());
+            println!("# of visible trees: {}", visible_trees.len());
+        }
+        _ => {
+            let mut scenic_scores = tree_grid.scenic_scores();
+
+            scenic_scores.sort_by(|a, b| b.scenic_score.cmp(&a.scenic_score));
+
+            println!(
+                "Highest possible scenic score: {}",
+                scenic_scores[0].scenic_score
+            );
+        }
+    }
 
     Ok(())
 }
