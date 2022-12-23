@@ -1,77 +1,87 @@
 use std::collections::HashSet;
 
-use crate::{
-    i32_tuple_ext::I32TupleExt,
-    rope_move::{RopeMove, RopeMoveDirection},
-};
+use anyhow::{anyhow, Result};
+
+use crate::rope_move::{RopeMove, RopeMoveDirection};
 
 /// Enumerates every variety of rope move.
 #[derive(Debug)]
 pub(crate) struct Rope {
-    /// Position of the head of the rope.
-    pub(crate) head_position: (i32, i32),
-    /// Position of the tail of the rope.
-    pub(crate) tail_position: (i32, i32),
+    /// Positions of each know in the rope.
+    pub(crate) knot_positions: Vec<(i32, i32)>,
+    /// Every position the last knot has ever had.
     pub(crate) tail_positions: HashSet<(i32, i32)>,
 }
 
 impl Rope {
     /// Creates and returns a new [Rope].
-    pub(crate) fn new() -> Rope {
+    ///
+    /// * `knot_count` is the number knots the resulting [Rope] will have.
+    pub(crate) fn new(knot_count: usize) -> Result<Rope> {
+        if knot_count < 2 {
+            return Err(anyhow!("Knot count must be at least 2"));
+        }
+
         let starting_position = (0, 0);
+
+        let knot_positions: Vec<(i32, i32)> = vec![starting_position; knot_count];
         let mut tail_positions: HashSet<(i32, i32)> = HashSet::new();
 
         tail_positions.insert(starting_position);
 
-        Rope {
-            head_position: starting_position,
-            tail_position: starting_position,
+        Ok(Rope {
+            knot_positions: knot_positions,
             tail_positions: tail_positions,
-        }
+        })
     }
 
-    /// Applies the provided [RopeMove] to this [Rope]'s `head_position`.
+    /// Applies the provided [RopeMove] to this [Rope]'s head knot, moving the
+    /// other knots thereafter if necessary.
     pub(crate) fn move_head(&mut self, rope_move: &RopeMove) {
         let RopeMove {
             direction,
             distance,
         } = rope_move;
 
-        let head_position = &mut self.head_position;
-        let tail_position = &mut self.tail_position;
+        let knot_count = self.knot_positions.len();
         let tail_positions = &mut self.tail_positions;
 
         for _ in 0..*distance {
-            match direction {
-                RopeMoveDirection::Down => head_position.1 = head_position.1 - 1,
-                RopeMoveDirection::Left => head_position.0 = head_position.0 - 1,
-                RopeMoveDirection::Right => head_position.0 = head_position.0 + 1,
-                RopeMoveDirection::Up => head_position.1 = head_position.1 + 1,
+            {
+                let head_knot_position = &mut self.knot_positions[0];
+
+                match direction {
+                    RopeMoveDirection::Down => head_knot_position.1 = head_knot_position.1 - 1,
+                    RopeMoveDirection::Left => head_knot_position.0 = head_knot_position.0 - 1,
+                    RopeMoveDirection::Right => head_knot_position.0 = head_knot_position.0 + 1,
+                    RopeMoveDirection::Up => head_knot_position.1 = head_knot_position.1 + 1,
+                }
             };
 
-            let gap = head_position.gap_with(&tail_position);
-            if gap > 1 {
-                match rope_move.direction {
-                    RopeMoveDirection::Down => {
-                        tail_position.0 = head_position.0;
-                        tail_position.1 = head_position.1 + 1;
-                    }
-                    RopeMoveDirection::Left => {
-                        tail_position.0 = head_position.0 + 1;
-                        tail_position.1 = head_position.1;
-                    }
-                    RopeMoveDirection::Right => {
-                        tail_position.0 = head_position.0 - 1;
-                        tail_position.1 = head_position.1;
-                    }
-                    RopeMoveDirection::Up => {
-                        tail_position.0 = head_position.0;
-                        tail_position.1 = head_position.1 - 1;
-                    }
-                };
+            for i in 1..knot_count {
+                let (previous_knot_x, previous_knot_y) = self.knot_positions[i - 1];
+                let knot_position = &mut self.knot_positions[i];
+
+                let delta_x = previous_knot_x - knot_position.0;
+                let delta_y = previous_knot_y - knot_position.1;
+                if delta_x.abs() < 2 && delta_y.abs() < 2 {
+                    continue;
+                }
+
+                if previous_knot_x - knot_position.0 > 0 {
+                    knot_position.0 = knot_position.0 + 1;
+                } else if delta_x < 0 {
+                    knot_position.0 = knot_position.0 - 1;
+                }
+
+                if previous_knot_y - knot_position.1 > 0 {
+                    knot_position.1 = knot_position.1 + 1;
+                } else if delta_y < 0 {
+                    knot_position.1 = knot_position.1 - 1;
+                }
             }
 
-            tail_positions.insert(*tail_position);
+            tail_positions.insert(self.knot_positions[self.knot_positions.len() - 1]);
         }
     }
 }

@@ -49,7 +49,7 @@ impl RopeMove {
 }
 
 /// Enumerates every variety of rope move direction.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub(crate) enum RopeMoveDirection {
     /// Head of the rope should move northward.
     Down,

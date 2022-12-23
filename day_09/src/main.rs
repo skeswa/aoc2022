@@ -4,7 +4,6 @@ extern crate lazy_static;
 extern crate regex;
 extern crate tokio;
 
-mod i32_tuple_ext;
 mod rope;
 mod rope_move;
 
@@ -24,7 +23,12 @@ async fn main() -> Result<()> {
         .collect::<Result<Vec<RopeMove>>>()
         .context("Failed to read rope moves")?;
 
-    let mut rope = Rope::new();
+    let knot_count = match config.part {
+        1 => 2,
+        _ => 10,
+    };
+
+    let mut rope = Rope::new(knot_count).context("Failed to create a rope")?;
     for rope_move in rope_moves {
         rope.move_head(&rope_move);
     }
