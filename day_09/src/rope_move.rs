@@ -7,9 +7,9 @@ use regex::Regex;
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct RopeMove {
     /// How the head of the rope should move.
-    direction: RopeMoveDirection,
+    pub(crate) direction: RopeMoveDirection,
     /// Magnitude of this rope move.
-    distance: usize,
+    pub(crate) distance: usize,
 }
 
 impl RopeMove {
