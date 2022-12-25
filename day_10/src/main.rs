@@ -1,5 +1,6 @@
 mod computer;
 mod instruction;
+mod screen;
 
 extern crate advent;
 extern crate anyhow;
@@ -39,7 +40,14 @@ async fn main() -> Result<()> {
         computer.compute(instruction);
     }
 
-    println!("Total signal strength: {}", total_signal_strength);
+    match config.part {
+        1 => {
+            println!("Total signal strength: {}", total_signal_strength);
+        }
+        _ => {
+            println!("Screen:\n{}", computer.screen);
+        }
+    }
 
     Ok(())
 }

@@ -1,8 +1,6 @@
-use crate::instruction::Instruction;
+use crate::{instruction::Instruction, screen::Screen};
 
-/// Enumerates every variety of command.
-///
-/// Each command includes its input and output.
+/// Executes instructions.
 #[derive(Debug)]
 pub(crate) struct Computer<F>
 where
@@ -14,6 +12,8 @@ where
     on_signal_strength: F,
     /// State of this [Computer].
     register: i64,
+    /// Screen that this computer writes to.
+    pub(crate) screen: Screen,
 }
 
 impl<F> Computer<F>
@@ -29,6 +29,7 @@ where
             cycle: 0,
             on_signal_strength: on_signal_strength,
             register: 1,
+            screen: Screen::new(40, 6, 3),
         }
     }
 
@@ -36,19 +37,19 @@ where
     pub(crate) fn compute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::Add(integer) => {
-                self.cycle();
-                self.cycle();
+                self.tick();
+                self.tick();
 
-                self.register = self.register + integer;
+                self.register += integer;
             }
             Instruction::NoOp => {
-                self.cycle();
+                self.tick();
             }
         }
     }
 
-    /// Executes the given `instruction`.
-    fn cycle(&mut self) {
+    /// Advances the instruction clock.
+    fn tick(&mut self) {
         self.cycle = self.cycle + 1;
 
         if self.cycle == 20 || (self.cycle > 20 && ((self.cycle - 20) % 40 == 0)) {
@@ -56,5 +57,7 @@ where
 
             (self.on_signal_strength)(signal_strength)
         }
+
+        self.screen.paint(self.register);
     }
 }
